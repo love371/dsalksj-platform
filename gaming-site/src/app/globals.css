@@ -1,0 +1,32 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  background: radial-gradient(circle at top, #18182f 0%, #09090f 40%, #040406 100%);
+  color: white;
+  font-family: Arial, sans-serif;
+
+  /* Only prevent sideways stretch */
+  overflow-x: hidden;
+
+  /* Do NOT block normal page scrolling */
+  overflow-y: auto;
+}
+
+/* App Router root */
+body > div {
+  min-height: 100vh;
+  width: 100%;
+  overflow: visible;
+  background: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
