@@ -4,8 +4,15 @@ const mongoose = require("mongoose");
 // Function to connect MongoDB
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000
+    const mongoURI = process.env.MONGODB_URI;
+
+    // Check if URI exists (important for debugging)
+    if (!mongoURI) {
+      throw new Error("MONGODB_URI is not defined in environment variables");
+    }
+
+    await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 5000,
     });
 
     console.log("MongoDB Atlas connected successfully 🚀");
