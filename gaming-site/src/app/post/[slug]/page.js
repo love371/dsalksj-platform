@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
+import { apiUrl } from "@/lib/api";
 
 export default function PostDetailsPage() {
   const params = useParams();
@@ -48,7 +49,7 @@ export default function PostDetailsPage() {
         setNotFound(false);
 
         const postResponse = await fetch(
-          `http://localhost:5000/api/posts/slug/${slug}`
+          apiUrl(`/api/posts/slug/${slug}`)
         );
 
         const postData = await postResponse.json();
@@ -62,7 +63,7 @@ export default function PostDetailsPage() {
         setPost(postData);
 
         const relatedResponse = await fetch(
-          `http://localhost:5000/api/posts/slug/${slug}/related`
+          apiUrl(`/api/posts/slug/${slug}/related`)
         );
 
         const relatedData = await relatedResponse.json();
@@ -100,7 +101,7 @@ export default function PostDetailsPage() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/posts/search?q=${encodeURIComponent(searchQuery)}`
+          apiUrl(`/api/posts/search?q=${encodeURIComponent(searchQuery)}`)
         );
 
         const data = await response.json();

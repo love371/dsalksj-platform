@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import PostCardGrid from "@/components/shared/PostCardGrid";
+import { apiUrl } from "@/lib/api"; // ✅ ADDED
 
 const animatedTexts = [
   "Fresh Gaming Headlines",
@@ -20,7 +21,6 @@ export default function NewsPage() {
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // responsive only
   const [screenWidth, setScreenWidth] = useState(1400);
 
   useEffect(() => {
@@ -45,10 +45,11 @@ export default function NewsPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // ✅ FIXED: Fetch posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/posts");
+        const response = await fetch(apiUrl("/api/posts"));
         const data = await response.json();
         setPosts(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -59,6 +60,7 @@ export default function NewsPage() {
     fetchPosts();
   }, []);
 
+  // ✅ FIXED: Search API
   useEffect(() => {
     const fetchSearchResults = async () => {
       if (!searchQuery.trim()) {
@@ -67,7 +69,7 @@ export default function NewsPage() {
       }
       try {
         const response = await fetch(
-          `http://localhost:5000/api/posts/search?q=${encodeURIComponent(searchQuery)}`
+          apiUrl(`/api/posts/search?q=${encodeURIComponent(searchQuery)}`)
         );
         const data = await response.json();
         setSearchResults(Array.isArray(data) ? data : []);

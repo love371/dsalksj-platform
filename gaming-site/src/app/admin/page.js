@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { apiUrl } from "@/lib/api";
 
 const editorButtonStyle = {
   padding: "8px 12px",
@@ -110,12 +111,12 @@ export default function AdminPage() {
         setPageLoading(true);
 
         const [statsRes, postsRes] = await Promise.all([
-          fetch("http://localhost:5000/api/posts/stats/dashboard", {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }),
-          fetch("http://localhost:5000/api/posts")
+          fetch(apiUrl("/api/posts/stats/dashboard"), {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+}),
+fetch(apiUrl("/api/posts"))
         ]);
 
         const statsData = await statsRes.json();
@@ -147,12 +148,12 @@ export default function AdminPage() {
   const refreshPostsAndStats = async () => {
     try {
       const [statsRes, postsRes] = await Promise.all([
-        fetch("http://localhost:5000/api/posts/stats/dashboard", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }),
-        fetch("http://localhost:5000/api/posts")
+        fetch(apiUrl("/api/posts/stats/dashboard"), {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+}),
+fetch(apiUrl("/api/posts"))
       ]);
 
       const statsData = await statsRes.json();
@@ -289,15 +290,15 @@ export default function AdminPage() {
       form.append("image", file);
 
       const response = await fetch(
-        "http://localhost:5000/api/posts/upload-image",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          body: form
-        }
-      );
+  apiUrl("/api/posts/upload-image"),
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: form
+  }
+);
 
       const data = await response.json();
 
@@ -325,20 +326,19 @@ export default function AdminPage() {
 
       setUploadingGallery(true);
 
-      const form = new Form
-      Data();
+      const form = new FormData();
       form.append("image", file);
 
       const response = await fetch(
-        "http://localhost:5000/api/posts/upload-image",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          body: form
-        }
-      );
+  apiUrl("/api/posts/upload-image"),
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: form
+  }
+);
 
       const data = await response.json();
 
@@ -456,8 +456,8 @@ export default function AdminPage() {
       const payload = buildPayload();
 
       const url = editingPostId
-        ? `http://localhost:5000/api/posts/update/${editingPostId}`
-        : "http://localhost:5000/api/posts/add";
+  ? apiUrl(`/api/posts/update/${editingPostId}`)
+  : apiUrl("/api/posts/add");
 
       const method = editingPostId ? "PUT" : "POST";
 
@@ -552,14 +552,14 @@ export default function AdminPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/posts/delete/${postId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+  apiUrl(`/api/posts/delete/${postId}`),
+  {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  }
+);
 
       const data = await response.json();
 

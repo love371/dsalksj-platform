@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
+import { apiUrl } from "@/lib/api"; // ✅ ADDED
 
 const animatedTexts = [
   "Built for Gamers",
@@ -18,7 +19,6 @@ export default function AboutPage() {
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // responsive only
   const [screenWidth, setScreenWidth] = useState(1400);
 
   useEffect(() => {
@@ -50,8 +50,9 @@ export default function AboutPage() {
         return;
       }
       try {
+        // ✅ FIXED HERE
         const response = await fetch(
-          `http://localhost:5000/api/posts/search?q=${encodeURIComponent(searchQuery)}`
+          apiUrl(`/api/posts/search?q=${encodeURIComponent(searchQuery)}`)
         );
         const data = await response.json();
         setSearchResults(Array.isArray(data) ? data : []);

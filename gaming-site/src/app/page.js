@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import PostCardGrid from "@/components/shared/PostCardGrid";
+import { apiUrl } from "@/lib/api";
 
 const animatedTexts = [
   "Latest Game News",
@@ -72,7 +73,7 @@ export default function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/posts");
+        const response = await fetch(apiUrl("/api/posts"));
         const data = await response.json();
         setPosts(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -93,7 +94,7 @@ export default function Home() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/posts/search?q=${encodeURIComponent(searchQuery)}`
+          apiUrl(`/api/posts/search?q=${encodeURIComponent(searchQuery)}`)
         );
         const data = await response.json();
         setSearchResults(Array.isArray(data) ? data : []);
@@ -163,8 +164,8 @@ export default function Home() {
       setLoading(true);
 
       const url = isLogin
-        ? "http://localhost:5000/api/auth/login"
-        : "http://localhost:5000/api/auth/signup";
+        ? apiUrl("/api/auth/login")
+        : apiUrl("/api/auth/signup");
 
       const payload = isLogin
         ? { email: formData.email, password: formData.password }
