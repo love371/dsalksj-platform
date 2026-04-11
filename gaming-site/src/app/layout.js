@@ -17,6 +17,10 @@ export const metadata = {
   description:
     "Explore latest gaming news, downloads, trending posts and premium gaming content on dsalksj.",
 
+    verification: {
+  google: "umTfEKZBwWqjygrRagvNjqRQq5fqZO2f3AM2uFDIBhQ" // paste your code
+},
+
   keywords: [
     "gaming",
     "game downloads",
