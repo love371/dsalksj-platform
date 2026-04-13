@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Script from "next/script"; // ✅ ADD THIS
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,15 +12,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// ✅ ONLY THIS PART CHANGED
 export const metadata = {
   title: "dsalksj - Gaming Platform",
   description:
     "Explore latest gaming news, downloads, trending posts and premium gaming content on dsalksj.",
 
-    verification: {
-  google: "umTfEKZBwWqjygrRagvNjqRQq5fqZO2f3AM2uFDIBhQ" // paste your code
-},
+  verification: {
+    google: "umTfEKZBwWqjygrRagvNjqRQq5fqZO2f3AM2uFDIBhQ"
+  },
 
   keywords: [
     "gaming",
@@ -65,6 +65,22 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      
+      {/* ✅ ADD GOOGLE ANALYTICS HERE */}
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-6CHLF4KS6V');
+        `}
+      </Script>
+
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
