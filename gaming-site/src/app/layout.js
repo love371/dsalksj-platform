@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Script from "next/script"; // ✅ ADD THIS
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -66,9 +66,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       
-      {/* ✅ ADD GOOGLE ANALYTICS HERE */}
       <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+        src="https://www.googletagmanager.com/gtag/js?id=G-6CHLF4KS6V"
         strategy="afterInteractive"
       />
       <Script id="google-analytics" strategy="afterInteractive">
