@@ -36,7 +36,7 @@ export default function SiteHeader({
   const getNavItemStyle = (isActive) => ({
     color: isActive ? "white" : "rgba(255,255,255,0.84)",
     cursor: "pointer",
-    padding: isMobile ? "8px 12px" : "10px 16px",
+    padding: isMobile ? "7px 11px" : "10px 16px",
     borderRadius: "999px",
     fontWeight: isActive ? "bold" : "500",
     background: isActive
@@ -50,7 +50,7 @@ export default function SiteHeader({
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: isMobile ? "13px" : "14px",
+    fontSize: isMobile ? "12px" : "14px",
     whiteSpace: "nowrap"
   });
 
@@ -87,11 +87,11 @@ export default function SiteHeader({
         position: "sticky",
         top: 0,
         zIndex: 50,
-        padding: isMobile ? "14px 16px" : isTablet ? "16px 24px" : "18px 40px",
+        padding: isMobile ? "10px 12px" : isTablet ? "16px 24px" : "18px 40px",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        gap: isMobile ? "14px" : "20px",
+        gap: isMobile ? "10px" : "20px",
         background: "rgba(7,7,10,0.82)",
         backdropFilter: "blur(14px)",
         borderBottom: "1px solid rgba(255,255,255,0.08)",
@@ -101,7 +101,7 @@ export default function SiteHeader({
       <div
         onClick={brandClick}
         style={{
-          fontSize: isMobile ? "24px" : isTablet ? "27px" : "30px",
+          fontSize: isMobile ? "20px" : isTablet ? "27px" : "30px",
           fontWeight: "bold",
           letterSpacing: "1px",
           whiteSpace: "nowrap",
@@ -133,7 +133,7 @@ export default function SiteHeader({
             background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(255,255,255,0.1)",
             borderRadius: "999px",
-            padding: isMobile ? "9px 12px" : "10px 14px",
+            padding: isMobile ? "8px 11px" : "10px 14px",
             backdropFilter: "blur(10px)"
           }}
         >
@@ -151,7 +151,7 @@ export default function SiteHeader({
 
           <input
             type="text"
-            placeholder="Search games, news, updates..."
+            placeholder={isMobile ? "Search..." : "Search games, news, updates..."}
             value={searchQuery}
             onChange={handleSearchChange}
             onKeyDown={(e) => {
@@ -180,13 +180,15 @@ export default function SiteHeader({
           <div
             style={{
               position: "absolute",
-              top: isMobile ? "50px" : "56px",
+              top: isMobile ? "46px" : "56px",
               left: 0,
               width: "100%",
+              maxHeight: isMobile ? "260px" : "320px",
+              overflowY: "auto",
               background: "rgba(18,18,28,0.98)",
               border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "18px",
-              overflow: "hidden",
+              borderRadius: "16px",
+              overflowX: "hidden",
               boxShadow: "0 20px 40px rgba(0,0,0,0.35)",
               backdropFilter: "blur(14px)",
               zIndex: 9999,
@@ -202,7 +204,7 @@ export default function SiteHeader({
                     handleResultOpen(item);
                   }}
                   style={{
-                    padding: isMobile ? "12px 14px" : "14px 16px",
+                    padding: isMobile ? "11px 12px" : "14px 16px",
                     borderBottom:
                       index !== searchResults.length - 1
                         ? "1px solid rgba(255,255,255,0.06)"
@@ -216,14 +218,15 @@ export default function SiteHeader({
                       fontWeight: "bold",
                       marginBottom: "4px",
                       color: "white",
-                      fontSize: isMobile ? "13px" : "14px"
+                      fontSize: isMobile ? "13px" : "14px",
+                      lineHeight: "1.35"
                     }}
                   >
                     {item.title}
                   </div>
                   <div
                     style={{
-                      fontSize: "12px",
+                      fontSize: "11px",
                       color: "rgba(255,255,255,0.6)",
                       textTransform: "uppercase",
                       letterSpacing: "1px"
@@ -250,7 +253,7 @@ export default function SiteHeader({
       <div
         style={{
           display: "flex",
-          gap: isMobile ? "8px" : "12px",
+          gap: isMobile ? "6px" : "12px",
           alignItems: "center",
           flexWrap: "wrap",
           justifyContent: isMobile ? "flex-start" : "center",
@@ -299,12 +302,12 @@ export default function SiteHeader({
               <button
                 onClick={() => router.push("/admin")}
                 style={{
-                  padding: isMobile ? "9px 12px" : "10px 16px",
+                  padding: isMobile ? "8px 10px" : "10px 16px",
                   borderRadius: "999px",
                   border: "none",
                   cursor: "pointer",
                   fontWeight: "bold",
-                  fontSize: isMobile ? "12px" : "14px",
+                  fontSize: isMobile ? "11px" : "14px",
                   background: "linear-gradient(90deg, #f59e0b, #ef4444)",
                   color: "white",
                   boxShadow: "0 0 16px rgba(245,158,11,0.4)"
@@ -317,8 +320,8 @@ export default function SiteHeader({
             <div
               onClick={() => setShowDropdown(!showDropdown)}
               style={{
-                width: isMobile ? "38px" : "42px",
-                height: isMobile ? "38px" : "42px",
+                width: isMobile ? "36px" : "42px",
+                height: isMobile ? "36px" : "42px",
                 borderRadius: "50%",
                 background: "linear-gradient(90deg, #7c3aed, #ec4899)",
                 display: "flex",
@@ -326,7 +329,7 @@ export default function SiteHeader({
                 justifyContent: "center",
                 cursor: "pointer",
                 fontWeight: "bold",
-                fontSize: isMobile ? "14px" : "16px",
+                fontSize: isMobile ? "13px" : "16px",
                 color: "white",
                 boxShadow: "0 0 18px rgba(124,58,237,0.35)"
               }}
@@ -339,13 +342,13 @@ export default function SiteHeader({
               <div
                 style={{
                   position: "absolute",
-                  top: isMobile ? "48px" : "55px",
+                  top: isMobile ? "44px" : "55px",
                   right: 0,
                   background: "rgba(18,18,28,0.95)",
                   border: "1px solid rgba(255,255,255,0.08)",
                   borderRadius: "12px",
                   padding: "10px",
-                  minWidth: "140px",
+                  minWidth: isMobile ? "130px" : "140px",
                   backdropFilter: "blur(10px)",
                   boxShadow: "0 14px 30px rgba(0,0,0,0.35)",
                   zIndex: 9999
@@ -383,12 +386,12 @@ export default function SiteHeader({
           <button
             onClick={() => setShowPopup?.(true)}
             style={{
-              padding: isMobile ? "10px 16px" : "12px 22px",
+              padding: isMobile ? "9px 14px" : "12px 22px",
               border: "none",
               borderRadius: "999px",
               cursor: "pointer",
               fontWeight: "bold",
-              fontSize: isMobile ? "13px" : "14px",
+              fontSize: isMobile ? "12px" : "14px",
               color: "white",
               background: "linear-gradient(90deg, #7c3aed, #ec4899)",
               boxShadow: "0 0 20px rgba(124,58,237,0.45)"

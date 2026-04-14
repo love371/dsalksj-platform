@@ -33,7 +33,6 @@ export default function Home() {
   });
 
   const [loading, setLoading] = useState(false);
-
   const [screenWidth, setScreenWidth] = useState(1400);
 
   useEffect(() => {
@@ -284,8 +283,8 @@ export default function Home() {
           display: "grid",
           gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr" : "1.05fr 0.95fr",
           alignItems: "center",
-          gap: isMobile ? "24px" : isTablet ? "28px" : "34px",
-          padding: isMobile ? "28px 16px" : isTablet ? "40px 24px" : "70px",
+          gap: isMobile ? "20px" : isTablet ? "28px" : "34px",
+          padding: isMobile ? "22px 16px 28px" : isTablet ? "40px 24px" : "70px",
           position: "relative",
           zIndex: 2
         }}
@@ -297,7 +296,7 @@ export default function Home() {
               fontWeight: "bold",
               letterSpacing: "2px",
               textTransform: "uppercase",
-              marginBottom: isMobile ? "12px" : "16px",
+              marginBottom: isMobile ? "10px" : "16px",
               fontSize: isMobile ? "11px" : "inherit"
             }}
           >
@@ -306,9 +305,9 @@ export default function Home() {
 
           <h1
             style={{
-              fontSize: isMobile ? "40px" : isTablet ? "54px" : "72px",
-              lineHeight: isMobile ? "1.12" : "1.05",
-              margin: isMobile ? "0 0 14px 0" : "0 0 18px 0",
+              fontSize: isMobile ? "34px" : isTablet ? "54px" : "72px",
+              lineHeight: isMobile ? "1.08" : "1.05",
+              margin: isMobile ? "0 0 12px 0" : "0 0 18px 0",
               fontWeight: "900"
             }}
           >
@@ -321,11 +320,11 @@ export default function Home() {
 
           <div
             style={{
-              minHeight: isMobile ? "36px" : "52px",
-              fontSize: isMobile ? "20px" : isTablet ? "24px" : "30px",
+              minHeight: isMobile ? "32px" : "52px",
+              fontSize: isMobile ? "18px" : isTablet ? "24px" : "30px",
               fontWeight: "bold",
               color: "#f472b6",
-              marginBottom: isMobile ? "16px" : "22px"
+              marginBottom: isMobile ? "14px" : "22px"
             }}
           >
             {animatedTexts[activeTextIndex]}
@@ -333,11 +332,11 @@ export default function Home() {
 
           <p
             style={{
-              fontSize: isMobile ? "15px" : isTablet ? "17px" : "19px",
-              lineHeight: "1.8",
+              fontSize: isMobile ? "14px" : isTablet ? "17px" : "19px",
+              lineHeight: "1.75",
               color: "rgba(255,255,255,0.74)",
               maxWidth: isMobile ? "100%" : "650px",
-              marginBottom: isMobile ? "22px" : "32px"
+              marginBottom: isMobile ? "10px" : "32px"
             }}
           >
             dsalksj is your premium destination for the latest game news,
@@ -350,8 +349,8 @@ export default function Home() {
           style={{
             width: "100%",
             minHeight: isMobile ? "auto" : isTablet ? "460px" : "530px",
-            borderRadius: isMobile ? "22px" : "30px",
-            padding: isMobile ? "16px" : "22px",
+            borderRadius: isMobile ? "18px" : "30px",
+            padding: isMobile ? "14px" : "22px",
             background:
               "linear-gradient(180deg, rgba(124,58,237,0.18), rgba(236,72,153,0.10))",
             border: "1px solid rgba(255,255,255,0.10)",
@@ -365,8 +364,7 @@ export default function Home() {
             <div
               style={{
                 width: "100%",
-                height: "100%",
-                minHeight: isMobile ? "260px" : "420px",
+                minHeight: isMobile ? "250px" : "420px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -394,7 +392,7 @@ export default function Home() {
                   color: "#d8b4fe",
                   fontSize: "13px",
                   fontWeight: "bold",
-                  marginBottom: "18px"
+                  marginBottom: isMobile ? "12px" : "18px"
                 }}
               >
                 FEATURED SPOTLIGHT
@@ -403,10 +401,10 @@ export default function Home() {
               <div
                 style={{
                   width: "100%",
-                  height: isMobile ? "190px" : isTablet ? "220px" : "260px",
-                  borderRadius: isMobile ? "16px" : "22px",
+                  aspectRatio: "16 / 9",
+                  borderRadius: isMobile ? "14px" : "22px",
                   overflow: "hidden",
-                  marginBottom: isMobile ? "14px" : "20px",
+                  marginBottom: isMobile ? "12px" : "20px",
                   background: "#0f0f18"
                 }}
               >
@@ -414,9 +412,11 @@ export default function Home() {
                   src={
                     heroFeaturedPost.bannerImage ||
                     heroFeaturedPost.image ||
-                    "https://via.placeholder.com/800x400?text=Featured+Post"
+                    "https://via.placeholder.com/800x450?text=Featured+Post"
                   }
                   alt={heroFeaturedPost.title}
+                  loading="eager"
+                  decoding="async"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -427,15 +427,17 @@ export default function Home() {
                     objectPosition:
                       heroFeaturedPost.bannerPosition ||
                       heroFeaturedPost.imagePosition ||
-                      "center"
+                      "center",
+                    display: "block"
                   }}
                 />
               </div>
 
               <h3
                 style={{
-                  fontSize: isMobile ? "24px" : isTablet ? "28px" : "34px",
-                  margin: isMobile ? "0 0 8px 0" : "0 0 12px 0"
+                  fontSize: isMobile ? "22px" : isTablet ? "28px" : "34px",
+                  margin: isMobile ? "0 0 8px 0" : "0 0 12px 0",
+                  lineHeight: "1.2"
                 }}
               >
                 {heroFeaturedPost.title}
@@ -444,7 +446,7 @@ export default function Home() {
               <p
                 style={{
                   color: "rgba(255,255,255,0.75)",
-                  lineHeight: "1.8",
+                  lineHeight: "1.75",
                   fontSize: isMobile ? "14px" : "16px"
                 }}
               >
@@ -455,8 +457,7 @@ export default function Home() {
             <div
               style={{
                 width: "100%",
-                height: "100%",
-                minHeight: isMobile ? "260px" : "420px",
+                minHeight: isMobile ? "250px" : "420px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -481,7 +482,7 @@ export default function Home() {
         style={{
           width: "100%",
           padding: isMobile
-            ? "10px 16px 40px 16px"
+            ? "8px 16px 36px 16px"
             : isTablet
             ? "10px 24px 50px 24px"
             : "10px 70px 60px 70px",
@@ -491,8 +492,8 @@ export default function Home() {
       >
         <h2
           style={{
-            fontSize: isMobile ? "28px" : isTablet ? "34px" : "42px",
-            marginBottom: isMobile ? "18px" : "26px"
+            fontSize: isMobile ? "24px" : isTablet ? "34px" : "42px",
+            marginBottom: isMobile ? "16px" : "26px"
           }}
         >
           Featured Sections
@@ -506,7 +507,7 @@ export default function Home() {
               : isTablet
               ? "repeat(2, minmax(0, 1fr))"
               : "repeat(auto-fit, minmax(250px, 1fr))",
-            gap: isMobile ? "16px" : "22px"
+            gap: isMobile ? "14px" : "22px"
           }}
         >
           {[
@@ -539,8 +540,8 @@ export default function Home() {
               key={item.title}
               style={{
                 position: "relative",
-                padding: isMobile ? "20px" : "28px",
-                borderRadius: isMobile ? "18px" : "24px",
+                padding: isMobile ? "18px" : "28px",
+                borderRadius: isMobile ? "16px" : "24px",
                 background:
                   "linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
                 border: "1px solid rgba(255,255,255,0.10)",
@@ -567,7 +568,6 @@ export default function Home() {
                 if (!isMobile) {
                   e.currentTarget.style.transform =
                     "perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)";
-
                   e.currentTarget.style.boxShadow =
                     "0 14px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)";
                   e.currentTarget.style.border = "1px solid rgba(255,255,255,0.10)";
@@ -587,7 +587,7 @@ export default function Home() {
                 }}
               />
 
-              <div style={{ fontSize: isMobile ? "28px" : "34px", marginBottom: "14px" }}>
+              <div style={{ fontSize: isMobile ? "26px" : "34px", marginBottom: "14px" }}>
                 {item.icon}
               </div>
 
@@ -595,7 +595,7 @@ export default function Home() {
                 style={{
                   marginTop: 0,
                   marginBottom: "12px",
-                  fontSize: isMobile ? "21px" : "25px"
+                  fontSize: isMobile ? "20px" : "25px"
                 }}
               >
                 {item.title}
@@ -613,7 +613,7 @@ export default function Home() {
         style={{
           width: "100%",
           padding: isMobile
-            ? "10px 16px 60px 16px"
+            ? "8px 16px 52px 16px"
             : isTablet
             ? "10px 24px 70px 24px"
             : "10px 70px 90px 70px",
@@ -623,8 +623,8 @@ export default function Home() {
       >
         <div
           style={{
-            borderRadius: isMobile ? "20px" : "28px",
-            padding: isMobile ? "20px" : isTablet ? "24px" : "34px",
+            borderRadius: isMobile ? "18px" : "28px",
+            padding: isMobile ? "18px" : isTablet ? "24px" : "34px",
             background:
               "linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
             border: "1px solid rgba(255,255,255,0.10)",
@@ -648,7 +648,7 @@ export default function Home() {
 
           <h2
             style={{
-              fontSize: isMobile ? "28px" : isTablet ? "34px" : "42px",
+              fontSize: isMobile ? "24px" : isTablet ? "34px" : "42px",
               margin: "0 0 18px 0"
             }}
           >
@@ -658,7 +658,7 @@ export default function Home() {
           <p
             style={{
               color: "rgba(255,255,255,0.75)",
-              lineHeight: "1.9",
+              lineHeight: "1.85",
               fontSize: isMobile ? "14px" : "17px",
               maxWidth: "1000px"
             }}

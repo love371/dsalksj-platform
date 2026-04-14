@@ -41,7 +41,6 @@ export default function PostDetailsPage() {
     }
   }, []);
 
-  // ✅ Correct single-post fetch by slug
   useEffect(() => {
     const fetchPostAndRelated = async () => {
       try {
@@ -101,6 +100,10 @@ export default function PostDetailsPage() {
           apiUrl(`/api/posts/search?q=${encodeURIComponent(searchQuery)}`)
         );
 
+        if (!response.ok) {
+          throw new Error("Failed to search posts");
+        }
+
         const data = await response.json();
         setSearchResults(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -152,9 +155,12 @@ export default function PostDetailsPage() {
     letterSpacing: "1px"
   };
 
-  // ✅ Keep rich content rendering improvements
   const normalizedContent = useMemo(() => {
     const rawContent = post?.content || "<p>No full content available yet.</p>";
+    const enhancedContent = rawContent.replaceAll(
+      "<img",
+      '<img loading="lazy" decoding="async"'
+    );
 
     return `
       <style>
@@ -214,10 +220,12 @@ export default function PostDetailsPage() {
         }
 
         .post-rich-content img {
+          width: 100%;
           max-width: 100% !important;
           height: auto !important;
           display: block;
-          border-radius: 16px;
+          border-radius: 14px;
+          margin: 16px 0;
         }
 
         .post-rich-content iframe,
@@ -226,6 +234,7 @@ export default function PostDetailsPage() {
           max-width: 100% !important;
           border-radius: 16px;
           display: block;
+          margin: 16px 0;
         }
 
         .post-rich-content div[style*="display:flex"] {
@@ -235,11 +244,13 @@ export default function PostDetailsPage() {
         .post-rich-content div[style*="display:flex"] img {
           height: auto !important;
           object-fit: contain !important;
+          margin: 0;
         }
 
         .post-rich-content div[style*="display:grid"] img {
           height: auto !important;
           object-fit: contain !important;
+          margin: 0;
         }
 
         .post-rich-content table {
@@ -274,7 +285,7 @@ export default function PostDetailsPage() {
         }
       </style>
       <div class="post-rich-content">
-        ${rawContent}
+        ${enhancedContent}
       </div>
     `;
   }, [post]);
@@ -351,11 +362,14 @@ export default function PostDetailsPage() {
                   "https://via.placeholder.com/72x72?text=IMG"
                 }
                 alt={item.title}
+                loading="lazy"
+                decoding="async"
                 style={{
                   width: isMobile ? "64px" : "72px",
                   height: isMobile ? "64px" : "72px",
                   objectFit: "cover",
-                  borderRadius: isMobile ? "10px" : "12px"
+                  borderRadius: isMobile ? "10px" : "12px",
+                  display: "block"
                 }}
               />
 
@@ -590,7 +604,7 @@ export default function PostDetailsPage() {
           maxWidth: isMobile ? "100%" : isTablet ? "860px" : "960px",
           margin: "0 auto",
           padding: isMobile
-            ? "20px 14px 50px"
+            ? "16px 14px 46px"
             : isTablet
             ? "30px 18px 60px"
             : "40px 20px 70px",
@@ -602,9 +616,9 @@ export default function PostDetailsPage() {
           <div
             style={{
               width: "100%",
-              height: isMobile ? "210px" : isTablet ? "270px" : "340px",
-              marginBottom: isMobile ? "16px" : "24px",
-              borderRadius: isMobile ? "16px" : "22px",
+              aspectRatio: "16 / 9",
+              marginBottom: isMobile ? "14px" : "24px",
+              borderRadius: isMobile ? "14px" : "22px",
               overflow: "hidden",
               background: "#0f0f18",
               display: "flex",
@@ -617,12 +631,15 @@ export default function PostDetailsPage() {
             <img
               src={post.bannerImage}
               alt={post.title}
+              loading="eager"
+              decoding="async"
               style={{
                 width: "100%",
                 height: "100%",
                 objectFit: post.bannerFit || "cover",
                 objectPosition: post.bannerPosition || "center",
-                borderRadius: isMobile ? "16px" : "22px"
+                borderRadius: isMobile ? "14px" : "22px",
+                display: "block"
               }}
             />
           </div>
@@ -630,15 +647,15 @@ export default function PostDetailsPage() {
 
         <section
           style={{
-            padding: isMobile ? "18px" : isTablet ? "22px" : "26px",
-            borderRadius: isMobile ? "16px" : "22px",
+            padding: isMobile ? "16px" : isTablet ? "22px" : "26px",
+            borderRadius: isMobile ? "14px" : "22px",
             background:
               "linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
             border: "1px solid rgba(255,255,255,0.10)",
             boxShadow:
               "0 14px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
             backdropFilter: "blur(14px)",
-            marginBottom: isMobile ? "16px" : "22px"
+            marginBottom: isMobile ? "14px" : "22px"
           }}
         >
           <div
@@ -646,7 +663,7 @@ export default function PostDetailsPage() {
               display: "flex",
               flexWrap: "wrap",
               gap: isMobile ? "6px" : "8px",
-              marginBottom: isMobile ? "12px" : "16px"
+              marginBottom: isMobile ? "10px" : "16px"
             }}
           >
             <span
@@ -710,9 +727,9 @@ export default function PostDetailsPage() {
 
           <h1
             style={{
-              fontSize: isMobile ? "28px" : isTablet ? "36px" : "44px",
-              lineHeight: "1.08",
-              margin: isMobile ? "0 0 12px 0" : "0 0 16px 0",
+              fontSize: isMobile ? "26px" : isTablet ? "36px" : "44px",
+              lineHeight: "1.1",
+              margin: isMobile ? "0 0 10px 0" : "0 0 16px 0",
               fontWeight: "900"
             }}
           >
@@ -722,9 +739,9 @@ export default function PostDetailsPage() {
           <p
             style={{
               fontSize: isMobile ? "14px" : "16px",
-              lineHeight: "1.8",
+              lineHeight: "1.75",
               color: "rgba(255,255,255,0.76)",
-              marginBottom: isMobile ? "16px" : "22px"
+              marginBottom: isMobile ? "14px" : "22px"
             }}
           >
             {post.description}
@@ -734,8 +751,8 @@ export default function PostDetailsPage() {
             <div
               style={{
                 width: "100%",
-                maxHeight: isMobile ? "220px" : isTablet ? "270px" : "320px",
-                marginBottom: isMobile ? "16px" : "22px",
+                aspectRatio: "16 / 9",
+                marginBottom: isMobile ? "14px" : "22px",
                 borderRadius: isMobile ? "14px" : "18px",
                 overflow: "hidden",
                 background: "#0f0f18",
@@ -748,12 +765,15 @@ export default function PostDetailsPage() {
               <img
                 src={post.image}
                 alt={post.title}
+                loading="eager"
+                decoding="async"
                 style={{
                   width: "100%",
-                  maxHeight: isMobile ? "220px" : isTablet ? "270px" : "320px",
+                  height: "100%",
                   objectFit: post.imageFit || "cover",
                   objectPosition: post.imagePosition || "center",
-                  borderRadius: isMobile ? "14px" : "18px"
+                  borderRadius: isMobile ? "14px" : "18px",
+                  display: "block"
                 }}
               />
             </div>
@@ -771,7 +791,7 @@ export default function PostDetailsPage() {
           />
 
           {Array.isArray(post.tags) && post.tags.length > 0 && (
-            <div style={{ marginTop: isMobile ? "20px" : "28px" }}>
+            <div style={{ marginTop: isMobile ? "18px" : "28px" }}>
               <h3
                 style={{
                   fontSize: isMobile ? "18px" : "22px",
@@ -808,7 +828,7 @@ export default function PostDetailsPage() {
           )}
 
           {(post.externalLink || post.downloadLink) && (
-            <div style={{ marginTop: isMobile ? "20px" : "28px" }}>
+            <div style={{ marginTop: isMobile ? "18px" : "28px" }}>
               <h3
                 style={{
                   fontSize: isMobile ? "18px" : "22px",
