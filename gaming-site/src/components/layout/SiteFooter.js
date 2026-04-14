@@ -197,6 +197,7 @@ export default function SiteFooter() {
       >
         © 2026 dsalksj. All rights reserved.
       </div>
+      <a href="/privacy">Privacy Policy</a>
     </footer>
   );
 }
