@@ -51,6 +51,8 @@ export default function AdminPage() {
   const twoEditorImageInputRef = useRef(null);
   const fourEditorImageInputRef = useRef(null);
 
+  const selectedEditorElementRef = useRef(null);
+
   const [user, setUser] = useState(null);
   const [token, setToken] = useState("");
   const [stats, setStats] = useState(null);
@@ -133,9 +135,10 @@ export default function AdminPage() {
         const postsData = await postsRes.json();
 
         if (statsRes.ok) setStats(statsData);
-        if (postsRes.ok) setPosts(postsData);
+        if (postsRes.ok) setPosts(Array.isArray(postsData) ? postsData : []);
       } catch (error) {
         console.error("Admin page load error:", error);
+        setPosts([]);
       } finally {
         setPageLoading(false);
       }
@@ -170,7 +173,7 @@ export default function AdminPage() {
       const postsData = await postsRes.json();
 
       if (statsRes.ok) setStats(statsData);
-      if (postsRes.ok) setPosts(postsData);
+      if (postsRes.ok) setPosts(Array.isArray(postsData) ? postsData : []);
     } catch (error) {
       console.error("Refresh admin data error:", error);
     }
@@ -227,10 +230,12 @@ export default function AdminPage() {
   };
 
   const clearSelectedEditorElement = () => {
-    if (selectedEditorElement) {
-      selectedEditorElement.style.outline = "none";
-      selectedEditorElement.style.boxShadow = "none";
+    const current = selectedEditorElementRef.current;
+    if (current) {
+      current.style.outline = "none";
+      current.style.boxShadow = "none";
     }
+    selectedEditorElementRef.current = null;
     setSelectedEditorElement(null);
   };
 
@@ -238,6 +243,7 @@ export default function AdminPage() {
     clearSelectedEditorElement();
     element.style.outline = "3px solid #a855f7";
     element.style.boxShadow = "0 0 0 4px rgba(168,85,247,0.15)";
+    selectedEditorElementRef.current = element;
     setSelectedEditorElement(element);
   };
 
@@ -254,15 +260,16 @@ export default function AdminPage() {
   };
 
   const deleteSelectedEditorElement = () => {
-    if (!selectedEditorElement) return;
+    const current = selectedEditorElementRef.current;
+    if (!current) return;
 
-    const parent = selectedEditorElement.parentElement;
-    selectedEditorElement.remove();
+    const parent = current.parentElement;
+    current.remove();
 
     if (
       parent &&
       parent !== editorRef.current &&
-      parent.innerHTML.trim() === ""
+      parent.innerHTML.replace(/<br\s*\/?>/gi, "").trim() === ""
     ) {
       parent.remove();
     }
@@ -272,48 +279,51 @@ export default function AdminPage() {
   };
 
   const increaseSelectedImageSize = () => {
-    if (!selectedEditorElement || selectedEditorElement.tagName !== "IMG") return;
+    const current = selectedEditorElementRef.current;
+    if (!current || current.tagName !== "IMG") return;
 
     const currentWidth =
-      parseInt(selectedEditorElement.style.width || "100", 10) || 100;
+      parseInt(current.style.width || "100", 10) || 100;
 
     const nextWidth = Math.min(currentWidth + 10, 100);
-    selectedEditorElement.style.width = `${nextWidth}%`;
-    selectedEditorElement.style.maxWidth = "100%";
-    selectedEditorElement.style.height = "auto";
+    current.style.width = `${nextWidth}%`;
+    current.style.maxWidth = "100%";
+    current.style.height = "auto";
 
     handleEditorInput();
   };
 
   const decreaseSelectedImageSize = () => {
-    if (!selectedEditorElement || selectedEditorElement.tagName !== "IMG") return;
+    const current = selectedEditorElementRef.current;
+    if (!current || current.tagName !== "IMG") return;
 
     const currentWidth =
-      parseInt(selectedEditorElement.style.width || "100", 10) || 100;
+      parseInt(current.style.width || "100", 10) || 100;
 
     const nextWidth = Math.max(currentWidth - 10, 20);
-    selectedEditorElement.style.width = `${nextWidth}%`;
-    selectedEditorElement.style.maxWidth = "100%";
-    selectedEditorElement.style.height = "auto";
+    current.style.width = `${nextWidth}%`;
+    current.style.maxWidth = "100%";
+    current.style.height = "auto";
 
     handleEditorInput();
   };
 
   const setSelectedImageRatio = (ratio) => {
-    if (!selectedEditorElement || selectedEditorElement.tagName !== "IMG") return;
+    const current = selectedEditorElementRef.current;
+    if (!current || current.tagName !== "IMG") return;
 
     if (ratio === "auto") {
-      selectedEditorElement.style.aspectRatio = "auto";
-      selectedEditorElement.style.objectFit = "contain";
+      current.style.aspectRatio = "auto";
+      current.style.objectFit = "contain";
     } else if (ratio === "1:1") {
-      selectedEditorElement.style.aspectRatio = "1 / 1";
-      selectedEditorElement.style.objectFit = "cover";
+      current.style.aspectRatio = "1 / 1";
+      current.style.objectFit = "cover";
     } else if (ratio === "4:3") {
-      selectedEditorElement.style.aspectRatio = "4 / 3";
-      selectedEditorElement.style.objectFit = "cover";
+      current.style.aspectRatio = "4 / 3";
+      current.style.objectFit = "cover";
     } else if (ratio === "16:9") {
-      selectedEditorElement.style.aspectRatio = "16 / 9";
-      selectedEditorElement.style.objectFit = "cover";
+      current.style.aspectRatio = "16 / 9";
+      current.style.objectFit = "cover";
     }
 
     handleEditorInput();
