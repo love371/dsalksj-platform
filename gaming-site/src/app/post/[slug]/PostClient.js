@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
@@ -22,7 +22,6 @@ export default function PostDetailsPage() {
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // responsive only
   const [screenWidth, setScreenWidth] = useState(1400);
 
   useEffect(() => {
@@ -42,16 +41,14 @@ export default function PostDetailsPage() {
     }
   }, []);
 
+  // ✅ Correct single-post fetch by slug
   useEffect(() => {
     const fetchPostAndRelated = async () => {
       try {
         setLoading(true);
         setNotFound(false);
 
-        const postResponse = await fetch(
-          apiUrl(`/api/posts/slug/${slug}`)
-        );
-
+        const postResponse = await fetch(apiUrl(`/api/posts/slug/${slug}`));
         const postData = await postResponse.json();
 
         if (!postResponse.ok) {
@@ -65,7 +62,6 @@ export default function PostDetailsPage() {
         const relatedResponse = await fetch(
           apiUrl(`/api/posts/slug/${slug}/related`)
         );
-
         const relatedData = await relatedResponse.json();
 
         if (relatedResponse.ok) {
@@ -82,6 +78,7 @@ export default function PostDetailsPage() {
       } catch (error) {
         console.error("Error fetching single post:", error);
         setNotFound(true);
+        setPost(null);
       } finally {
         setLoading(false);
       }
@@ -154,6 +151,133 @@ export default function PostDetailsPage() {
     textTransform: "uppercase",
     letterSpacing: "1px"
   };
+
+  // ✅ Keep rich content rendering improvements
+  const normalizedContent = useMemo(() => {
+    const rawContent = post?.content || "<p>No full content available yet.</p>";
+
+    return `
+      <style>
+        .post-rich-content * {
+          box-sizing: border-box;
+        }
+
+        .post-rich-content h1,
+        .post-rich-content h2,
+        .post-rich-content h3,
+        .post-rich-content h4,
+        .post-rich-content h5,
+        .post-rich-content h6 {
+          line-height: 1.25;
+          margin: 24px 0 12px;
+          color: #ffffff;
+          font-weight: 800;
+        }
+
+        .post-rich-content h1 { font-size: 2rem; }
+        .post-rich-content h2 { font-size: 1.7rem; }
+        .post-rich-content h3 { font-size: 1.4rem; }
+        .post-rich-content h4 { font-size: 1.2rem; }
+
+        .post-rich-content p {
+          margin: 0 0 16px;
+          color: rgba(255,255,255,0.86);
+          line-height: 1.9;
+        }
+
+        .post-rich-content ul,
+        .post-rich-content ol {
+          margin: 0 0 18px 22px;
+          padding: 0;
+          line-height: 1.9;
+        }
+
+        .post-rich-content li {
+          margin-bottom: 8px;
+          color: rgba(255,255,255,0.86);
+        }
+
+        .post-rich-content blockquote {
+          margin: 20px 0;
+          padding: 14px 18px;
+          border-left: 4px solid #a855f7;
+          background: rgba(255,255,255,0.05);
+          border-radius: 14px;
+          color: rgba(255,255,255,0.88);
+          font-style: italic;
+        }
+
+        .post-rich-content a {
+          color: #d8b4fe;
+          text-decoration: underline;
+          word-break: break-word;
+        }
+
+        .post-rich-content img {
+          max-width: 100% !important;
+          height: auto !important;
+          display: block;
+          border-radius: 16px;
+        }
+
+        .post-rich-content iframe,
+        .post-rich-content video {
+          width: 100% !important;
+          max-width: 100% !important;
+          border-radius: 16px;
+          display: block;
+        }
+
+        .post-rich-content div[style*="display:flex"] {
+          max-width: 100%;
+        }
+
+        .post-rich-content div[style*="display:flex"] img {
+          height: auto !important;
+          object-fit: contain !important;
+        }
+
+        .post-rich-content div[style*="display:grid"] img {
+          height: auto !important;
+          object-fit: contain !important;
+        }
+
+        .post-rich-content table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 18px 0;
+        }
+
+        .post-rich-content hr {
+          border: none;
+          border-top: 1px solid rgba(255,255,255,0.12);
+          margin: 24px 0;
+        }
+
+        @media (max-width: 768px) {
+          .post-rich-content h1 { font-size: 1.7rem; }
+          .post-rich-content h2 { font-size: 1.45rem; }
+          .post-rich-content h3 { font-size: 1.25rem; }
+
+          .post-rich-content div[style*="display:flex"] {
+            flex-direction: column !important;
+          }
+
+          .post-rich-content div[style*="display:flex"] img {
+            width: 100% !important;
+            flex: none !important;
+          }
+
+          .post-rich-content div[style*="display:grid"] {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      </style>
+      <div class="post-rich-content">
+        ${rawContent}
+      </div>
+    `;
+  }, [post]);
 
   const renderAutoCards = (items, title) => {
     if (!Array.isArray(items) || items.length === 0) return null;
@@ -431,7 +555,6 @@ export default function PostDetailsPage() {
         brandClick={() => (window.location.href = "/")}
       />
 
-      {/* Background glow */}
       <div
         style={{
           position: "fixed",
@@ -475,7 +598,6 @@ export default function PostDetailsPage() {
           zIndex: 2
         }}
       >
-        {/* TOP BANNER ONLY FOR bannerImage */}
         {post.bannerImage && (
           <div
             style={{
@@ -506,7 +628,6 @@ export default function PostDetailsPage() {
           </div>
         )}
 
-        {/* Main content box */}
         <section
           style={{
             padding: isMobile ? "18px" : isTablet ? "22px" : "26px",
@@ -520,7 +641,6 @@ export default function PostDetailsPage() {
             marginBottom: isMobile ? "16px" : "22px"
           }}
         >
-          {/* Badges */}
           <div
             style={{
               display: "flex",
@@ -610,7 +730,6 @@ export default function PostDetailsPage() {
             {post.description}
           </p>
 
-          {/* NORMAL POST IMAGE ONLY BELOW TITLE */}
           {!post.bannerImage && post.image && (
             <div
               style={{
@@ -640,7 +759,6 @@ export default function PostDetailsPage() {
             </div>
           )}
 
-          {/* Rich content */}
           <div
             style={{
               color: "rgba(255,255,255,0.86)",
@@ -648,11 +766,10 @@ export default function PostDetailsPage() {
               fontSize: isMobile ? "14px" : "15px"
             }}
             dangerouslySetInnerHTML={{
-              __html: post.content || "<p>No full content available yet.</p>"
+              __html: normalizedContent
             }}
           />
 
-          {/* Tags */}
           {Array.isArray(post.tags) && post.tags.length > 0 && (
             <div style={{ marginTop: isMobile ? "20px" : "28px" }}>
               <h3
@@ -690,7 +807,6 @@ export default function PostDetailsPage() {
             </div>
           )}
 
-          {/* Links */}
           {(post.externalLink || post.downloadLink) && (
             <div style={{ marginTop: isMobile ? "20px" : "28px" }}>
               <h3
@@ -751,7 +867,6 @@ export default function PostDetailsPage() {
           )}
         </section>
 
-        {/* Auto related + explore */}
         <div
           style={{
             display: "grid",
