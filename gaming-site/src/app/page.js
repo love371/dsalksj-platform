@@ -42,50 +42,35 @@ export default function PostDetailsPage() {
   }, []);
 
   useEffect(() => {
-    const fetchPostAndRelated = async () => {
-      try {
-        setLoading(true);
-        setNotFound(false);
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
 
-        const postResponse = await fetch(apiUrl(`/api/posts/slug/${slug}`));
-        const postData = await postResponse.json();
-
-        if (!postResponse.ok) {
-          setNotFound(true);
-          setPost(null);
-          return;
-        }
-
-        setPost(postData);
-
-        const relatedResponse = await fetch(
-          apiUrl(`/api/posts/slug/${slug}/related`)
-        );
-        const relatedData = await relatedResponse.json();
-
-        if (relatedResponse.ok) {
-          setRelatedPosts(
-            Array.isArray(relatedData.related) ? relatedData.related : []
-          );
-          setExplorePosts(
-            Array.isArray(relatedData.explore) ? relatedData.explore : []
-          );
-        } else {
-          setRelatedPosts([]);
-          setExplorePosts([]);
-        }
-      } catch (error) {
-        console.error("Error fetching single post:", error);
-        setNotFound(true);
-      } finally {
-        setLoading(false);
+      const res = await fetch(apiUrl("/api/posts"));
+      
+      if (!res.ok) {
+        throw new Error("Failed to fetch posts");
       }
-    };
 
-    if (slug) {
-      fetchPostAndRelated();
+      const data = await res.json();
+
+      // 🔥 FIX: ensure array
+      if (Array.isArray(data)) {
+        setPosts(data);
+      } else {
+        setPosts([]);
+      }
+
+    } catch (err) {
+      console.error("Fetch posts error:", err);
+      setPosts([]);
+    } finally {
+      setLoading(false); // 🔥 IMPORTANT
     }
-  }, [slug]);
+  };
+
+  fetchPosts();
+}, []);
 
   useEffect(() => {
     const fetchSearchResults = async () => {
