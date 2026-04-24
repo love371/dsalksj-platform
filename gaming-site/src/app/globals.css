@@ -7,7 +7,7 @@ html {
   padding: 0;
   width: 100%;
   min-height: 100%;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   background: #040406;
   overflow-x: hidden;
 }
@@ -26,7 +26,6 @@ body {
   overflow-y: auto;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  overscroll-behavior-y: none;
 }
 
 body > div {
@@ -53,10 +52,6 @@ select {
 }
 
 @media (max-width: 768px) {
-  html {
-    scroll-behavior: auto;
-  }
-
   body {
     background:
       radial-gradient(circle at top, #18182f 0%, #09090f 42%, #040406 100%);
