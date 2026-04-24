@@ -8,40 +8,30 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
   useEffect(() => {
     const updateWidth = () => setScreenWidth(window.innerWidth);
     updateWidth();
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
+
+    const resizeHandler = () => requestAnimationFrame(updateWidth);
+    window.addEventListener("resize", resizeHandler);
+
+    return () => window.removeEventListener("resize", resizeHandler);
   }, []);
 
   const isMobile = screenWidth <= 768;
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
-
-  const showcaseCardStyle = {
-    position: "relative",
-    padding: isMobile ? "14px" : isTablet ? "18px" : "22px",
-    borderRadius: isMobile ? "16px" : "22px",
-    background:
-      "linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025))",
-    border: "1px solid rgba(255,255,255,0.09)",
-    boxShadow:
-      "0 12px 28px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.05)",
-    backdropFilter: "blur(12px)",
-    overflow: "hidden",
-    transition: "transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease"
-  };
 
   return (
     <section
       style={{
         width: "100%",
         padding: isMobile
-          ? "8px 16px 42px 16px"
+          ? "8px 16px 42px"
           : isTablet
-          ? "10px 24px 70px 24px"
-          : "10px 70px 90px 70px",
+          ? "10px 24px 70px"
+          : "10px 70px 90px",
         position: "relative",
         zIndex: 2
       }}
     >
+      {/* HEADER */}
       <div
         style={{
           display: "flex",
@@ -55,7 +45,7 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
         <div>
           <p
             style={{
-              margin: "0 0 8px 0",
+              margin: "0 0 8px",
               color: "#c084fc",
               fontWeight: "bold",
               letterSpacing: "2px",
@@ -65,6 +55,7 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
           >
             {eyebrow}
           </p>
+
           <h2
             style={{
               fontSize: isMobile ? "24px" : isTablet ? "36px" : "42px",
@@ -89,8 +80,11 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
         </p>
       </div>
 
+      {/* GRID */}
       {posts.length === 0 ? (
-        <p style={{ color: "rgba(255,255,255,0.7)" }}>No posts available yet.</p>
+        <p style={{ color: "rgba(255,255,255,0.7)" }}>
+          No posts available yet.
+        </p>
       ) : (
         <div
           style={{
@@ -105,36 +99,20 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
         >
           {posts.map((post) => (
             <div
-              id={`post-${post._id}`}
               key={post._id}
               style={{
-                ...showcaseCardStyle,
+                padding: isMobile ? "14px" : isTablet ? "18px" : "22px",
+                borderRadius: isMobile ? "16px" : "22px",
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025))",
+                border: "1px solid rgba(255,255,255,0.09)",
+                boxShadow:
+                  "0 12px 28px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.05)",
+                backdropFilter: "blur(12px)",
                 cursor: "pointer",
-                overflow: "hidden",
-                transition: "all 0.35s ease",
-                position: "relative"
-              }}
-              onMouseEnter={(e) => {
-                if (!isMobile) {
-                  e.currentTarget.style.transform = "translateY(-10px) scale(1.02)";
-                  e.currentTarget.style.boxShadow =
-                    "0 25px 50px rgba(0,0,0,0.5), 0 0 25px rgba(124,58,237,0.4)";
-                  e.currentTarget.style.border = "1px solid rgba(124,58,237,0.5)";
-
-                  const img = e.currentTarget.querySelector("img");
-                  if (img) img.style.transform = "scale(1.06)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isMobile) {
-                  e.currentTarget.style.transform = "translateY(0px) scale(1)";
-                  e.currentTarget.style.boxShadow =
-                    "0 12px 28px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.05)";
-                  e.currentTarget.style.border = "1px solid rgba(255,255,255,0.09)";
-
-                  const img = e.currentTarget.querySelector("img");
-                  if (img) img.style.transform = "scale(1)";
-                }
+                transform: "translateZ(0)",
+                willChange: "transform",
+                contain: "layout paint"
               }}
               onClick={() => {
                 if (post.slug) {
@@ -142,37 +120,38 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
                 }
               }}
             >
+              {/* IMAGE */}
               <div
                 style={{
                   width: "100%",
                   aspectRatio: "16 / 9",
                   marginBottom: "14px",
-                  overflow: "hidden",
                   borderRadius: isMobile ? "12px" : "16px",
+                  overflow: "hidden",
                   background: "#0f0f18"
                 }}
               >
                 <img
                   src={
-                    post.image && post.image !== ""
+                    post.image
                       ? post.image
                       : "https://via.placeholder.com/800x450?text=No+Image"
                   }
                   alt={post.title}
                   loading="lazy"
                   decoding="async"
+                  fetchPriority="low"
                   style={{
                     width: "100%",
                     height: "100%",
                     objectFit: post.imageFit || "cover",
                     objectPosition: post.imagePosition || "center",
-                    borderRadius: isMobile ? "12px" : "16px",
-                    transition: "transform 0.4s ease",
                     display: "block"
                   }}
                 />
               </div>
 
+              {/* TYPE */}
               <div
                 style={{
                   fontSize: "12px",
@@ -185,6 +164,7 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
                 {post.type}
               </div>
 
+              {/* TITLE */}
               <h3
                 style={{
                   marginBottom: "8px",
@@ -195,6 +175,7 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
                 {post.title}
               </h3>
 
+              {/* DESC */}
               <p
                 style={{
                   opacity: 0.7,
@@ -205,6 +186,7 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
                 {post.description}
               </p>
 
+              {/* CATEGORY */}
               {post.category && (
                 <p
                   style={{
@@ -223,7 +205,6 @@ export default function PostCardGrid({ posts, title, eyebrow, subtitle }) {
                   marginTop: "14px",
                   color: "#c084fc",
                   fontWeight: "bold",
-                  display: "inline-block",
                   fontSize: isMobile ? "13px" : "14px"
                 }}
               >
