@@ -1,51 +1,67 @@
-// Load environment variables
 require("dotenv").config();
 
-// Import required libraries
 const express = require("express");
 const cors = require("cors");
+const compression = require("compression");
 
-// Import MongoDB connection
 const connectDB = require("./config/db");
-
-// Import routes
 const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/postRoutes");
 
-// Create express app
 const app = express();
 
-// Connect database
 connectDB();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.CLIENT_URL,
+  "https://dsalksj.in",
+  "https://www.dsalksj.in"
+].filter(Boolean);
 
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
 
-// ==========================
-// ROUTES
-// ==========================
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
 
-// Auth routes
+      return callback(new Error(`CORS blocked: ${origin}`));
+    },
+    credentials: true
+  })
+);
+
+app.use(
+  compression({
+    level: 6,
+    threshold: 1024
+  })
+);
+
+app.use(express.json({ limit: "2mb" }));
+
+app.use((req, res, next) => {
+  res.setHeader("X-DNS-Prefetch-Control", "on");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  next();
+});
+
 app.use("/api/auth", authRoutes);
-
-// Post routes
 app.use("/api/posts", postRoutes);
-
-
-// ==========================
-// TEST ROUTE
-// ==========================
 
 app.get("/", (req, res) => {
   res.send("dsalksj Gaming Platform 🎮 Backend Running");
 });
 
-
-// ==========================
-// START SERVER
-// ==========================
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Backend healthy"
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 

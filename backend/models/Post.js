@@ -2,78 +2,38 @@ const mongoose = require("mongoose");
 
 const RelatedItemSchema = new mongoose.Schema(
   {
-    title: {
-      type: String,
-      default: "",
-      trim: true
-    },
-    subtitle: {
-      type: String,
-      default: "",
-      trim: true
-    },
-    image: {
-      type: String,
-      default: "",
-      trim: true
-    },
-    link: {
-      type: String,
-      default: "",
-      trim: true
-    },
-    label: {
-      type: String,
-      default: "",
-      trim: true
-    }
+    title: { type: String, default: "", trim: true },
+    subtitle: { type: String, default: "", trim: true },
+    image: { type: String, default: "", trim: true },
+    link: { type: String, default: "", trim: true },
+    label: { type: String, default: "", trim: true }
   },
   { _id: false }
 );
 
 const PostSchema = new mongoose.Schema(
   {
-    title: {
-      type: String,
-      required: true,
-      trim: true
-    },
+    title: { type: String, required: true, trim: true },
 
     slug: {
       type: String,
       unique: true,
-      trim: true
+      trim: true,
+      index: true
     },
 
     type: {
       type: String,
       required: true,
-      enum: ["game", "news", "download"]
+      enum: ["game", "news", "download"],
+      index: true
     },
 
-    description: {
-      type: String,
-      required: true,
-      trim: true
-    },
+    description: { type: String, required: true, trim: true },
+    content: { type: String, default: "", trim: true },
 
-    content: {
-      type: String,
-      default: "",
-      trim: true
-    },
-
-    image: {
-      type: String,
-      default: "",
-      trim: true
-    },
-
-    bannerImage: {
-      type: String,
-      default: "",
-      trim: true
-    },
+    image: { type: String, default: "", trim: true },
+    bannerImage: { type: String, default: "", trim: true },
 
     imageFit: {
       type: String,
@@ -102,70 +62,33 @@ const PostSchema = new mongoose.Schema(
     category: {
       type: String,
       default: "",
-      trim: true
+      trim: true,
+      index: true
     },
 
-    tags: [
-      {
-        type: String,
-        trim: true
-      }
-    ],
+    tags: [{ type: String, trim: true, index: true }],
 
-    externalLink: {
-      type: String,
-      default: "",
-      trim: true
-    },
+    externalLink: { type: String, default: "", trim: true },
+    downloadLink: { type: String, default: "", trim: true },
 
-    downloadLink: {
-      type: String,
-      default: "",
-      trim: true
-    },
+    isTrending: { type: Boolean, default: false, index: true },
+    isFeatured: { type: Boolean, default: false, index: true },
+    isUpcoming: { type: Boolean, default: false, index: true },
+    showOnHomepage: { type: Boolean, default: true, index: true },
 
-    isTrending: {
-      type: Boolean,
-      default: false
-    },
-
-    isFeatured: {
-      type: Boolean,
-      default: false
-    },
-
-    isUpcoming: {
-      type: Boolean,
-      default: false
-    },
-
-    showOnHomepage: {
-      type: Boolean,
-      default: true
-    },
-
-    galleryImages: [
-      {
-        type: String,
-        trim: true
-      }
-    ],
-
-    videoUrls: [
-      {
-        type: String,
-        trim: true
-      }
-    ],
+    galleryImages: [{ type: String, trim: true }],
+    videoUrls: [{ type: String, trim: true }],
 
     relatedGames: [RelatedItemSchema],
-
     exploreMore: [RelatedItemSchema]
   },
   {
     timestamps: true
   }
 );
+
+PostSchema.index({ createdAt: -1 });
+PostSchema.index({ title: "text", description: "text", category: "text", tags: "text" });
 
 PostSchema.pre("save", function () {
   if (!this.slug && this.title) {

@@ -74,7 +74,9 @@ export default function Home() {
       try {
         setPostsLoading(true);
 
-        const response = await fetch(apiUrl("/api/posts"));
+        const response = await fetch(apiUrl("/api/posts/homepage"), {
+  cache: "no-store"
+});
 
         if (!response.ok) {
           throw new Error("Failed to fetch posts");

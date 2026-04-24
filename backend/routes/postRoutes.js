@@ -153,7 +153,16 @@ router.post("/add", adminMiddleware, async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const posts = await Post.find().sort({ createdAt: -1 });
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+
+    const posts = await Post.find()
+      .select(
+        "title slug type description image bannerImage imageFit imagePosition bannerFit bannerPosition category isTrending isFeatured isUpcoming showOnHomepage createdAt"
+      )
+      .sort({ createdAt: -1 })
+      .limit(30)
+      .lean();
+
     res.status(200).json(posts);
   } catch (error) {
     console.error("GET ALL POSTS ERROR:", error);
@@ -167,9 +176,15 @@ router.get("/", async (req, res) => {
 
 router.get("/homepage", async (req, res) => {
   try {
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+
     const posts = await Post.find({ showOnHomepage: true })
+      .select(
+        "title slug type description image bannerImage imageFit imagePosition bannerFit bannerPosition category isTrending isFeatured isUpcoming createdAt"
+      )
       .sort({ createdAt: -1 })
-      .limit(8);
+      .limit(8)
+      .lean();
 
     res.status(200).json(posts);
   } catch (error) {
