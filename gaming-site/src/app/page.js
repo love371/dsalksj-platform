@@ -94,10 +94,15 @@ export default function Home() {
           signal: controller.signal
         });
 
+        if (!response.ok) {
+          throw new Error("Failed to fetch posts");
+        }
+
         const data = await response.json();
         setPosts(Array.isArray(data) ? data : []);
       } catch (error) {
         if (error.name !== "AbortError") {
+          console.error("Error fetching posts:", error);
           setPosts([]);
         }
       } finally {
@@ -125,16 +130,23 @@ export default function Home() {
           { signal: controller.signal }
         );
 
+        if (!response.ok) {
+          throw new Error("Failed to search posts");
+        }
+
         const data = await response.json();
         setSearchResults(Array.isArray(data) ? data : []);
       } catch (error) {
         if (error.name !== "AbortError") {
+          console.error("Error searching posts:", error);
           setSearchResults([]);
         }
       }
     };
 
-    const timer = setTimeout(fetchSearchResults, 350);
+    const timer = setTimeout(() => {
+      fetchSearchResults();
+    }, 350);
 
     return () => {
       clearTimeout(timer);
@@ -158,7 +170,9 @@ export default function Home() {
 
   const scrollToResult = (id) => {
     const element = document.getElementById(id);
-    if (element) element.scrollIntoView({ behavior: "smooth" });
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
     setShowSearchResults(false);
   };
 
@@ -168,12 +182,19 @@ export default function Home() {
   };
 
   const handleSearch = () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      alert("Please enter something to search.");
+      return;
+    }
 
     if (searchResults.length > 0) {
       if (searchResults[0].slug) {
         window.location.href = `/post/${searchResults[0].slug}`;
+      } else if (searchResults[0]._id) {
+        scrollToResult(`post-${searchResults[0]._id}`);
       }
+    } else {
+      alert("No results found.");
     }
   };
 
@@ -207,16 +228,32 @@ export default function Home() {
         setUser(data.user);
         setShowPopup(false);
         setShowDropdown(false);
+        setFormData({ username: "", email: "", password: "" });
+      } else {
+        alert(data.message || "Something went wrong");
       }
+    } catch (error) {
+      console.error("Auth error:", error);
+      alert("Server error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
+    setShowDropdown(false);
+    setShowPopup(false);
   };
+
+  const heroImageUrl = heroFeaturedPost
+    ? optimizeImage(
+        heroFeaturedPost.bannerImage || heroFeaturedPost.image,
+        isMobile ? 700 : 1200
+      ) || "https://via.placeholder.com/800x450?text=Featured+Post"
+    : "https://via.placeholder.com/800x450?text=Featured+Post";
 
   return (
     <main
@@ -240,7 +277,23 @@ export default function Home() {
           borderRadius: "50%",
           background: "rgba(124,58,237,0.18)",
           filter: isMobile ? "blur(70px)" : "blur(95px)",
-          pointerEvents: "none"
+          pointerEvents: "none",
+          zIndex: 0
+        }}
+      />
+
+      <div
+        style={{
+          position: "fixed",
+          top: isMobile ? "160px" : "220px",
+          right: "-120px",
+          width: isMobile ? "260px" : "380px",
+          height: isMobile ? "260px" : "380px",
+          borderRadius: "50%",
+          background: "rgba(236,72,153,0.16)",
+          filter: isMobile ? "blur(70px)" : "blur(95px)",
+          pointerEvents: "none",
+          zIndex: 0
         }}
       />
 
@@ -260,27 +313,556 @@ export default function Home() {
         brandClick={() => (window.location.href = "/")}
       />
 
-      {/* HERO IMAGE OPTIMIZED */}
-      {heroFeaturedPost && (
-        <img
-          src={
-            optimizeImage(
-              heroFeaturedPost.bannerImage ||
-                heroFeaturedPost.image,
-              isMobile ? 700 : 1200
-            ) ||
-            "https://via.placeholder.com/800x450?text=Featured"
-          }
-          alt={heroFeaturedPost.title}
-          loading="eager"
-          fetchPriority="high"
-          style={{ width: "100%" }}
-        />
-      )}
+      <section
+        style={{
+          width: "100%",
+          minHeight: isMobile ? "auto" : "calc(100vh - 88px)",
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr" : "1.05fr 0.95fr",
+          alignItems: "center",
+          gap: isMobile ? "20px" : isTablet ? "28px" : "34px",
+          padding: isMobile ? "22px 16px 28px" : isTablet ? "40px 24px" : "70px",
+          position: "relative",
+          zIndex: 2
+        }}
+      >
+        <div style={{ maxWidth: isMobile ? "100%" : "760px" }}>
+          <p
+            style={{
+              color: "#c084fc",
+              fontWeight: "bold",
+              letterSpacing: "2px",
+              textTransform: "uppercase",
+              marginBottom: isMobile ? "10px" : "16px",
+              fontSize: isMobile ? "11px" : "inherit"
+            }}
+          >
+            modern gaming portal
+          </p>
 
-      <PostCardGrid posts={latestPosts} />
+          <h1
+            style={{
+              fontSize: isMobile ? "34px" : isTablet ? "54px" : "72px",
+              lineHeight: isMobile ? "1.08" : "1.05",
+              margin: isMobile ? "0 0 12px 0" : "0 0 18px 0",
+              fontWeight: "900"
+            }}
+          >
+            Explore the
+            <br />
+            world of
+            <br />
+            gaming.
+          </h1>
+
+          <div
+            style={{
+              minHeight: isMobile ? "32px" : "52px",
+              fontSize: isMobile ? "18px" : isTablet ? "24px" : "30px",
+              fontWeight: "bold",
+              color: "#f472b6",
+              marginBottom: isMobile ? "14px" : "22px"
+            }}
+          >
+            {animatedTexts[activeTextIndex]}
+          </div>
+
+          <p
+            style={{
+              fontSize: isMobile ? "14px" : isTablet ? "17px" : "19px",
+              lineHeight: "1.75",
+              color: "rgba(255,255,255,0.74)",
+              maxWidth: isMobile ? "100%" : "650px",
+              marginBottom: isMobile ? "10px" : "32px"
+            }}
+          >
+            dsalksj is your premium destination for the latest game news,
+            trending titles, popular releases, gaming updates, and discovering
+            or downloading your favorite games with a futuristic experience.
+          </p>
+        </div>
+
+        <div
+          style={{
+            width: "100%",
+            minHeight: isMobile ? "auto" : isTablet ? "460px" : "530px",
+            borderRadius: isMobile ? "18px" : "30px",
+            padding: isMobile ? "14px" : "22px",
+            background:
+              "linear-gradient(180deg, rgba(124,58,237,0.18), rgba(236,72,153,0.10))",
+            border: "1px solid rgba(255,255,255,0.10)",
+            boxShadow: "0 0 40px rgba(124,58,237,0.24)",
+            backdropFilter: "blur(16px)",
+            position: "relative",
+            overflow: "hidden",
+            contain: "layout paint"
+          }}
+        >
+          {postsLoading ? (
+            <div
+              style={{
+                width: "100%",
+                minHeight: isMobile ? "250px" : "420px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "bold",
+                color: "rgba(255,255,255,0.8)"
+              }}
+            >
+              Loading posts...
+            </div>
+          ) : heroFeaturedPost ? (
+            <div
+              onClick={() => {
+                if (heroFeaturedPost.slug) {
+                  window.location.href = `/post/${heroFeaturedPost.slug}`;
+                }
+              }}
+              style={{ width: "100%", height: "100%", cursor: "pointer" }}
+            >
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "8px 14px",
+                  borderRadius: "999px",
+                  background: "rgba(168,85,247,0.16)",
+                  color: "#d8b4fe",
+                  fontSize: "13px",
+                  fontWeight: "bold",
+                  marginBottom: isMobile ? "12px" : "18px"
+                }}
+              >
+                FEATURED SPOTLIGHT
+              </div>
+
+              <div
+                style={{
+                  width: "100%",
+                  aspectRatio: "16 / 9",
+                  borderRadius: isMobile ? "14px" : "22px",
+                  overflow: "hidden",
+                  marginBottom: isMobile ? "12px" : "20px",
+                  background: "#0f0f18"
+                }}
+              >
+                <img
+                  src={heroImageUrl}
+                  alt={heroFeaturedPost.title}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit:
+                      heroFeaturedPost.bannerFit ||
+                      heroFeaturedPost.imageFit ||
+                      "cover",
+                    objectPosition:
+                      heroFeaturedPost.bannerPosition ||
+                      heroFeaturedPost.imagePosition ||
+                      "center",
+                    display: "block"
+                  }}
+                />
+              </div>
+
+              <h3
+                style={{
+                  fontSize: isMobile ? "22px" : isTablet ? "28px" : "34px",
+                  margin: isMobile ? "0 0 8px 0" : "0 0 12px 0",
+                  lineHeight: "1.2"
+                }}
+              >
+                {heroFeaturedPost.title}
+              </h3>
+
+              <p
+                style={{
+                  color: "rgba(255,255,255,0.75)",
+                  lineHeight: "1.75",
+                  fontSize: isMobile ? "14px" : "16px"
+                }}
+              >
+                {heroFeaturedPost.description}
+              </p>
+            </div>
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                minHeight: isMobile ? "250px" : "420px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "bold",
+                color: "rgba(255,255,255,0.7)"
+              }}
+            >
+              No posts found.
+            </div>
+          )}
+        </div>
+      </section>
+
+      <PostCardGrid
+        posts={latestPosts}
+        eyebrow="fresh content"
+        title="Latest Posts"
+        subtitle="The same rich homepage content stays here."
+      />
+
+      <section
+        style={{
+          width: "100%",
+          padding: isMobile
+            ? "8px 16px 36px 16px"
+            : isTablet
+            ? "10px 24px 50px 24px"
+            : "10px 70px 60px 70px",
+          position: "relative",
+          zIndex: 2
+        }}
+      >
+        <h2
+          style={{
+            fontSize: isMobile ? "24px" : isTablet ? "34px" : "42px",
+            marginBottom: isMobile ? "16px" : "26px"
+          }}
+        >
+          Featured Sections
+        </h2>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isMobile
+              ? "1fr"
+              : isTablet
+              ? "repeat(2, minmax(0, 1fr))"
+              : "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: isMobile ? "14px" : "22px"
+          }}
+        >
+          {[
+            {
+              icon: "🔥",
+              title: "Popular Games",
+              text: "Discover the hottest games people are playing right now.",
+              glow: "rgba(236,72,153,0.30)"
+            },
+            {
+              icon: "📰",
+              title: "Latest News",
+              text: "Stay updated with gaming headlines, updates, and launches.",
+              glow: "rgba(59,130,246,0.30)"
+            },
+            {
+              icon: "⬇️",
+              title: "Download Games",
+              text: "Find downloadable gaming content faster.",
+              glow: "rgba(16,185,129,0.30)"
+            },
+            {
+              icon: "ℹ️",
+              title: "About Us",
+              text: "Learn what dsalksj is building for gamers.",
+              glow: "rgba(245,158,11,0.30)"
+            }
+          ].map((item, index) => (
+            <div
+              key={item.title}
+              style={{
+                position: "relative",
+                padding: isMobile ? "18px" : "28px",
+                borderRadius: isMobile ? "16px" : "24px",
+                background:
+                  "linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
+                border: "1px solid rgba(255,255,255,0.10)",
+                boxShadow:
+                  "0 14px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
+                backdropFilter: "blur(14px)",
+                overflow: "hidden",
+                cursor: "pointer",
+                transition:
+                  "transform 0.35s ease, box-shadow 0.35s ease, border 0.35s ease",
+                contain: "layout paint"
+              }}
+              onMouseEnter={(e) => {
+                if (!isMobile) {
+                  e.currentTarget.style.transform =
+                    index % 2 === 0
+                      ? "perspective(1000px) rotateX(6deg) rotateY(-8deg) translateY(-12px)"
+                      : "perspective(1000px) rotateX(6deg) rotateY(8deg) translateY(-12px)";
+
+                  e.currentTarget.style.boxShadow = `0 30px 50px rgba(0,0,0,0.5), 0 0 40px ${item.glow}`;
+                  e.currentTarget.style.border = "1px solid rgba(255,255,255,0.25)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isMobile) {
+                  e.currentTarget.style.transform =
+                    "perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 14px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)";
+                  e.currentTarget.style.border = "1px solid rgba(255,255,255,0.10)";
+                }
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: "-25px",
+                  right: "-25px",
+                  width: "100px",
+                  height: "100px",
+                  borderRadius: "50%",
+                  background: item.glow,
+                  filter: isMobile ? "blur(18px)" : "blur(25px)"
+                }}
+              />
+
+              <div style={{ fontSize: isMobile ? "26px" : "34px", marginBottom: "14px" }}>
+                {item.icon}
+              </div>
+
+              <h3
+                style={{
+                  marginTop: 0,
+                  marginBottom: "12px",
+                  fontSize: isMobile ? "20px" : "25px"
+                }}
+              >
+                {item.title}
+              </h3>
+
+              <p style={{ color: "rgba(255,255,255,0.72)", lineHeight: "1.75" }}>
+                {item.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section
+        style={{
+          width: "100%",
+          padding: isMobile
+            ? "8px 16px 52px 16px"
+            : isTablet
+            ? "10px 24px 70px 24px"
+            : "10px 70px 90px 70px",
+          position: "relative",
+          zIndex: 2
+        }}
+      >
+        <div
+          style={{
+            borderRadius: isMobile ? "18px" : "28px",
+            padding: isMobile ? "18px" : isTablet ? "24px" : "34px",
+            background:
+              "linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
+            border: "1px solid rgba(255,255,255,0.10)",
+            boxShadow:
+              "0 14px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
+            backdropFilter: "blur(14px)",
+            contain: "layout paint"
+          }}
+        >
+          <p
+            style={{
+              margin: "0 0 8px 0",
+              color: "#c084fc",
+              fontWeight: "bold",
+              letterSpacing: "2px",
+              textTransform: "uppercase",
+              fontSize: "13px"
+            }}
+          >
+            about platform
+          </p>
+
+          <h2
+            style={{
+              fontSize: isMobile ? "24px" : isTablet ? "34px" : "42px",
+              margin: "0 0 18px 0"
+            }}
+          >
+            About dsalksj
+          </h2>
+
+          <p
+            style={{
+              color: "rgba(255,255,255,0.75)",
+              lineHeight: "1.85",
+              fontSize: isMobile ? "14px" : "17px",
+              maxWidth: "1000px"
+            }}
+          >
+            dsalksj is a modern gaming content platform built to showcase game
+            news, popular releases, updates, and rich single-post experiences in
+            one stylish place.
+          </p>
+        </div>
+      </section>
 
       <SiteFooter />
+
+      {showPopup && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.74)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: "20px"
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: isMobile ? "100%" : "430px",
+              borderRadius: isMobile ? "18px" : "24px",
+              background: "linear-gradient(180deg, #161621, #0f0f18)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              boxShadow: "0 0 40px rgba(124,58,237,0.35)",
+              padding: isMobile ? "20px" : "28px",
+              position: "relative"
+            }}
+          >
+            <button
+              onClick={() => setShowPopup(false)}
+              style={{
+                position: "absolute",
+                right: "16px",
+                top: "16px",
+                background: "transparent",
+                border: "none",
+                color: "white",
+                fontSize: "22px",
+                cursor: "pointer"
+              }}
+            >
+              ✕
+            </button>
+
+            <h2
+              style={{
+                marginTop: "8px",
+                marginBottom: "8px",
+                fontSize: isMobile ? "24px" : "32px"
+              }}
+            >
+              {isLogin ? "Welcome Back" : "Create Account"}
+            </h2>
+
+            <p
+              style={{
+                color: "rgba(255,255,255,0.68)",
+                marginBottom: "22px",
+                lineHeight: "1.6"
+              }}
+            >
+              {isLogin
+                ? "Login to continue exploring the gaming world."
+                : "Sign up to unlock personalized gaming experiences."}
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              {!isLogin && (
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Enter username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  style={{
+                    padding: "14px 16px",
+                    borderRadius: "14px",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.05)",
+                    color: "white",
+                    outline: "none",
+                    fontSize: "15px"
+                  }}
+                />
+              )}
+
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter email"
+                value={formData.email}
+                onChange={handleChange}
+                style={{
+                  padding: "14px 16px",
+                  borderRadius: "14px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.05)",
+                  color: "white",
+                  outline: "none",
+                  fontSize: "15px"
+                }}
+              />
+
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter password"
+                value={formData.password}
+                onChange={handleChange}
+                style={{
+                  padding: "14px 16px",
+                  borderRadius: "14px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.05)",
+                  color: "white",
+                  outline: "none",
+                  fontSize: "15px"
+                }}
+              />
+
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                style={{
+                  marginTop: "6px",
+                  padding: "15px 18px",
+                  borderRadius: "14px",
+                  border: "none",
+                  background: "linear-gradient(90deg, #7c3aed, #ec4899)",
+                  color: "#fff",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  opacity: loading ? 0.7 : 1
+                }}
+              >
+                {loading ? "Please wait..." : isLogin ? "Login" : "Signup"}
+              </button>
+            </div>
+
+            <p
+              onClick={() => setIsLogin(!isLogin)}
+              style={{
+                marginTop: "20px",
+                textAlign: "center",
+                color: "#c084fc",
+                cursor: "pointer",
+                fontWeight: "bold"
+              }}
+            >
+              {isLogin
+                ? "Don't have an account? Switch to Signup"
+                : "Already have an account? Switch to Login"}
+            </p>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
