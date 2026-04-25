@@ -4,8 +4,18 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 const games = [
-  { label: "Game 1", url: "https://game1.dsalksj.in" },
-  { label: "Game 2", url: "https://game2.dsalksj.in" }
+  {
+    label: "Game 1",
+    subtitle: "Play on dsalksj subdomain",
+    icon: "🎮",
+    url: "https://game1.dsalksj.in"
+  },
+  {
+    label: "Game 2",
+    subtitle: "Open hosted game portal",
+    icon: "⚡",
+    url: "https://game2.dsalksj.in"
+  }
 ];
 
 export default function SiteHeader({
@@ -29,6 +39,7 @@ export default function SiteHeader({
   const [screenWidth, setScreenWidth] = useState(1400);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [gamesOpen, setGamesOpen] = useState(false);
+  const [mobileGamesOpen, setMobileGamesOpen] = useState(false);
 
   useEffect(() => {
     const updateWidth = () => setScreenWidth(window.innerWidth);
@@ -229,6 +240,87 @@ export default function SiteHeader({
     </div>
   );
 
+  const desktopGamesDropdown = (
+    <div
+      style={{
+        position: "absolute",
+        top: "45px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "280px",
+        padding: "12px",
+        borderRadius: "22px",
+        background:
+          "linear-gradient(180deg, rgba(26,26,42,0.98), rgba(9,9,14,0.98))",
+        border: "1px solid rgba(255,255,255,0.12)",
+        boxShadow:
+          "0 24px 55px rgba(0,0,0,0.55), 0 0 35px rgba(124,58,237,0.28)",
+        backdropFilter: "blur(18px)",
+        zIndex: 9999
+      }}
+    >
+      <div
+        style={{
+          padding: "10px 12px 12px",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          marginBottom: "10px"
+        }}
+      >
+        <div style={{ fontWeight: "900", fontSize: "15px" }}>Playable Games</div>
+        <div style={{ color: "rgba(255,255,255,0.58)", fontSize: "12px", marginTop: "4px" }}>
+          Open your hosted game worlds
+        </div>
+      </div>
+
+      {games.map((game) => (
+        <div
+          key={game.url}
+          onClick={() => window.open(game.url, "_blank")}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "38px 1fr",
+            gap: "10px",
+            alignItems: "center",
+            padding: "11px",
+            borderRadius: "16px",
+            cursor: "pointer",
+            background: "rgba(255,255,255,0.045)",
+            marginBottom: "8px",
+            border: "1px solid rgba(255,255,255,0.07)"
+          }}
+        >
+          <div
+            style={{
+              width: "38px",
+              height: "38px",
+              borderRadius: "13px",
+              background: "linear-gradient(135deg, #7c3aed, #ec4899)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 0 18px rgba(124,58,237,0.35)"
+            }}
+          >
+            {game.icon}
+          </div>
+
+          <div>
+            <div style={{ fontWeight: "bold", fontSize: "14px" }}>{game.label}</div>
+            <div
+              style={{
+                color: "rgba(255,255,255,0.58)",
+                fontSize: "12px",
+                marginTop: "3px"
+              }}
+            >
+              {game.subtitle}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <nav
       style={{
@@ -285,58 +377,16 @@ export default function SiteHeader({
                   style={{ position: "relative" }}
                 >
                   <span style={navButtonStyle(false)}>Games ▾</span>
-
-                  {gamesOpen && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "44px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        minWidth: "210px",
-                        padding: "10px",
-                        borderRadius: "18px",
-                        background:
-                          "linear-gradient(180deg, rgba(25,25,38,0.98), rgba(12,12,18,0.98))",
-                        border: "1px solid rgba(255,255,255,0.10)",
-                        boxShadow:
-                          "0 22px 45px rgba(0,0,0,0.45), 0 0 28px rgba(124,58,237,0.22)",
-                        backdropFilter: "blur(16px)",
-                        zIndex: 9999
-                      }}
-                    >
-                      {games.map((game) => (
-                        <div
-                          key={game.url}
-                          onClick={() => window.open(game.url, "_blank")}
-                          style={{
-                            padding: "12px 13px",
-                            borderRadius: "13px",
-                            cursor: "pointer",
-                            color: "white",
-                            fontWeight: "bold",
-                            fontSize: "14px",
-                            background: "rgba(255,255,255,0.04)",
-                            marginBottom: "7px",
-                            border: "1px solid rgba(255,255,255,0.06)"
-                          }}
-                        >
-                          🎮 {game.label}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  {gamesOpen && desktopGamesDropdown}
                 </div>
               );
             }
-
-            const active = isActivePath(item.path);
 
             return (
               <span
                 key={item.path}
                 onClick={() => router.push(item.path)}
-                style={navButtonStyle(active)}
+                style={navButtonStyle(isActivePath(item.path))}
               >
                 {item.label}
               </span>
@@ -491,7 +541,8 @@ export default function SiteHeader({
               padding: "18px",
               display: "flex",
               flexDirection: "column",
-              gap: "12px"
+              gap: "12px",
+              overflowY: "auto"
             }}
           >
             <button
@@ -513,40 +564,85 @@ export default function SiteHeader({
                 return (
                   <div key="mobile-games">
                     <div
+                      onClick={() => setMobileGamesOpen((prev) => !prev)}
                       style={{
                         padding: "13px 14px",
                         borderRadius: "14px",
                         background:
-                          "linear-gradient(90deg, rgba(124,58,237,0.20), rgba(236,72,153,0.12))",
+                          "linear-gradient(90deg, rgba(124,58,237,0.24), rgba(236,72,153,0.16))",
                         border: "1px solid rgba(255,255,255,0.10)",
                         fontWeight: "bold",
-                        marginBottom: "8px"
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center"
                       }}
                     >
-                      Games
+                      <span>Games</span>
+                      <span>{mobileGamesOpen ? "▴" : "▾"}</span>
                     </div>
 
-                    {games.map((game) => (
+                    {mobileGamesOpen && (
                       <div
-                        key={game.url}
-                        onClick={() => {
-                          window.open(game.url, "_blank");
-                          setMobileMenuOpen(false);
-                        }}
                         style={{
-                          padding: "11px 14px",
-                          marginBottom: "7px",
-                          marginLeft: "10px",
-                          borderRadius: "12px",
-                          background: "rgba(255,255,255,0.05)",
-                          color: "rgba(255,255,255,0.88)",
-                          fontWeight: "bold",
-                          cursor: "pointer"
+                          marginTop: "9px",
+                          display: "grid",
+                          gap: "8px"
                         }}
                       >
-                        🎮 {game.label}
+                        {games.map((game) => (
+                          <div
+                            key={game.url}
+                            onClick={() => {
+                              window.open(game.url, "_blank");
+                              setMobileMenuOpen(false);
+                            }}
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "38px 1fr",
+                              gap: "10px",
+                              alignItems: "center",
+                              padding: "10px",
+                              marginLeft: "8px",
+                              borderRadius: "15px",
+                              background: "rgba(255,255,255,0.055)",
+                              border: "1px solid rgba(255,255,255,0.08)",
+                              cursor: "pointer"
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "38px",
+                                height: "38px",
+                                borderRadius: "13px",
+                                background: "linear-gradient(135deg, #7c3aed, #ec4899)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                boxShadow: "0 0 15px rgba(124,58,237,0.32)"
+                              }}
+                            >
+                              {game.icon}
+                            </div>
+
+                            <div>
+                              <div style={{ fontWeight: "bold", fontSize: "14px" }}>
+                                {game.label}
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "11px",
+                                  color: "rgba(255,255,255,0.58)",
+                                  marginTop: "3px"
+                                }}
+                              >
+                                {game.subtitle}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 );
               }
