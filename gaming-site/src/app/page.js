@@ -38,20 +38,8 @@ export default function Home() {
   useEffect(() => {
     const updateWidth = () => setScreenWidth(window.innerWidth);
     updateWidth();
-
-    let frameId = null;
-
-    const resizeHandler = () => {
-      if (frameId) cancelAnimationFrame(frameId);
-      frameId = requestAnimationFrame(updateWidth);
-    };
-
-    window.addEventListener("resize", resizeHandler);
-
-    return () => {
-      if (frameId) cancelAnimationFrame(frameId);
-      window.removeEventListener("resize", resizeHandler);
-    };
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   const isMobile = screenWidth <= 768;
@@ -60,10 +48,10 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveTextIndex((prev) => (prev + 1) % animatedTexts.length);
-    }, isMobile ? 3500 : 2200);
+    }, 2200);
 
     return () => clearInterval(interval);
-  }, [isMobile]);
+  }, []);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -82,16 +70,13 @@ export default function Home() {
   }, [authChecked, user]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
     const fetchPosts = async () => {
       try {
         setPostsLoading(true);
 
         const response = await fetch(apiUrl("/api/posts/homepage"), {
-          cache: "no-store",
-          signal: controller.signal
-        });
+  cache: "no-store"
+});
 
         if (!response.ok) {
           throw new Error("Failed to fetch posts");
@@ -100,23 +85,17 @@ export default function Home() {
         const data = await response.json();
         setPosts(Array.isArray(data) ? data : []);
       } catch (error) {
-        if (error.name !== "AbortError") {
-          console.error("Error fetching posts:", error);
-          setPosts([]);
-        }
+        console.error("Error fetching posts:", error);
+        setPosts([]);
       } finally {
         setPostsLoading(false);
       }
     };
 
     fetchPosts();
-
-    return () => controller.abort();
   }, []);
 
   useEffect(() => {
-    const controller = new AbortController();
-
     const fetchSearchResults = async () => {
       if (!searchQuery.trim()) {
         setSearchResults([]);
@@ -125,8 +104,7 @@ export default function Home() {
 
       try {
         const response = await fetch(
-          apiUrl(`/api/posts/search?q=${encodeURIComponent(searchQuery)}`),
-          { signal: controller.signal }
+          apiUrl(`/api/posts/search?q=${encodeURIComponent(searchQuery)}`)
         );
 
         if (!response.ok) {
@@ -136,19 +114,16 @@ export default function Home() {
         const data = await response.json();
         setSearchResults(Array.isArray(data) ? data : []);
       } catch (error) {
-        if (error.name !== "AbortError") {
-          console.error("Error searching posts:", error);
-          setSearchResults([]);
-        }
+        console.error("Error searching posts:", error);
+        setSearchResults([]);
       }
     };
 
-    const timer = setTimeout(fetchSearchResults, 350);
+    const timer = setTimeout(() => {
+      fetchSearchResults();
+    }, 300);
 
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
+    return () => clearTimeout(timer);
   }, [searchQuery]);
 
   const heroFeaturedPost = useMemo(() => {
@@ -266,7 +241,7 @@ export default function Home() {
           height: isMobile ? "280px" : "420px",
           borderRadius: "50%",
           background: "rgba(124,58,237,0.18)",
-          filter: isMobile ? "blur(70px)" : "blur(95px)",
+          filter: "blur(120px)",
           pointerEvents: "none",
           zIndex: 0
         }}
@@ -281,7 +256,7 @@ export default function Home() {
           height: isMobile ? "260px" : "380px",
           borderRadius: "50%",
           background: "rgba(236,72,153,0.16)",
-          filter: isMobile ? "blur(70px)" : "blur(95px)",
+          filter: "blur(120px)",
           pointerEvents: "none",
           zIndex: 0
         }}
@@ -384,8 +359,7 @@ export default function Home() {
             boxShadow: "0 0 40px rgba(124,58,237,0.24)",
             backdropFilter: "blur(16px)",
             position: "relative",
-            overflow: "hidden",
-            contain: "layout paint"
+            overflow: "hidden"
           }}
         >
           {postsLoading ? (
@@ -444,7 +418,6 @@ export default function Home() {
                   }
                   alt={heroFeaturedPost.title}
                   loading="eager"
-                  fetchPriority="high"
                   decoding="async"
                   style={{
                     width: "100%",
@@ -580,8 +553,7 @@ export default function Home() {
                 overflow: "hidden",
                 cursor: "pointer",
                 transition:
-                  "transform 0.35s ease, box-shadow 0.35s ease, border 0.35s ease",
-                contain: "layout paint"
+                  "transform 0.35s ease, box-shadow 0.35s ease, border 0.35s ease"
               }}
               onMouseEnter={(e) => {
                 if (!isMobile) {
@@ -613,7 +585,7 @@ export default function Home() {
                   height: "100px",
                   borderRadius: "50%",
                   background: item.glow,
-                  filter: isMobile ? "blur(18px)" : "blur(25px)"
+                  filter: "blur(25px)"
                 }}
               />
 
@@ -660,8 +632,7 @@ export default function Home() {
             border: "1px solid rgba(255,255,255,0.10)",
             boxShadow:
               "0 14px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
-            backdropFilter: "blur(14px)",
-            contain: "layout paint"
+            backdropFilter: "blur(14px)"
           }}
         >
           <p
