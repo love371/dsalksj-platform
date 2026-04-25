@@ -5,6 +5,11 @@ const Post = require("../models/Post");
 const adminMiddleware = require("../middleware/adminMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
+const CARD_FIELDS =
+  "title slug type description image bannerImage imageFit imagePosition bannerFit bannerPosition category isTrending isFeatured isUpcoming showOnHomepage createdAt";
+
+const SEARCH_FIELDS = "title slug type description category createdAt";
+
 router.post(
   "/upload-image",
   adminMiddleware,
@@ -34,13 +39,23 @@ router.post(
 
 router.get("/stats/dashboard", adminMiddleware, async (req, res) => {
   try {
-    const totalPosts = await Post.countDocuments();
-    const totalNews = await Post.countDocuments({ type: "news" });
-    const totalGames = await Post.countDocuments({ type: "game" });
-    const totalDownloads = await Post.countDocuments({ type: "download" });
-    const totalTrending = await Post.countDocuments({ isTrending: true });
-    const totalFeatured = await Post.countDocuments({ isFeatured: true });
-    const totalUpcoming = await Post.countDocuments({ isUpcoming: true });
+    const [
+      totalPosts,
+      totalNews,
+      totalGames,
+      totalDownloads,
+      totalTrending,
+      totalFeatured,
+      totalUpcoming
+    ] = await Promise.all([
+      Post.countDocuments(),
+      Post.countDocuments({ type: "news" }),
+      Post.countDocuments({ type: "game" }),
+      Post.countDocuments({ type: "download" }),
+      Post.countDocuments({ isTrending: true }),
+      Post.countDocuments({ isFeatured: true }),
+      Post.countDocuments({ isUpcoming: true })
+    ]);
 
     res.status(200).json({
       totalPosts,
@@ -156,9 +171,7 @@ router.get("/", async (req, res) => {
     res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
 
     const posts = await Post.find()
-      .select(
-        "title slug type description image bannerImage imageFit imagePosition bannerFit bannerPosition category isTrending isFeatured isUpcoming showOnHomepage createdAt"
-      )
+      .select(CARD_FIELDS)
       .sort({ createdAt: -1 })
       .limit(30)
       .lean();
@@ -179,9 +192,7 @@ router.get("/homepage", async (req, res) => {
     res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
 
     const posts = await Post.find({ showOnHomepage: true })
-      .select(
-        "title slug type description image bannerImage imageFit imagePosition bannerFit bannerPosition category isTrending isFeatured isUpcoming createdAt"
-      )
+      .select(CARD_FIELDS)
       .sort({ createdAt: -1 })
       .limit(8)
       .lean();
@@ -199,9 +210,12 @@ router.get("/homepage", async (req, res) => {
 
 router.get("/trending", async (req, res) => {
   try {
-    const posts = await Post.find({ isTrending: true }).sort({
-      createdAt: -1
-    });
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+
+    const posts = await Post.find({ isTrending: true })
+      .select(CARD_FIELDS)
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json(posts);
   } catch (error) {
@@ -216,9 +230,12 @@ router.get("/trending", async (req, res) => {
 
 router.get("/featured", async (req, res) => {
   try {
-    const posts = await Post.find({ isFeatured: true }).sort({
-      createdAt: -1
-    });
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+
+    const posts = await Post.find({ isFeatured: true })
+      .select(CARD_FIELDS)
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json(posts);
   } catch (error) {
@@ -233,9 +250,12 @@ router.get("/featured", async (req, res) => {
 
 router.get("/upcoming", async (req, res) => {
   try {
-    const posts = await Post.find({ isUpcoming: true }).sort({
-      createdAt: -1
-    });
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+
+    const posts = await Post.find({ isUpcoming: true })
+      .select(CARD_FIELDS)
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json(posts);
   } catch (error) {
@@ -258,7 +278,12 @@ router.get("/type/:type", async (req, res) => {
       });
     }
 
-    const posts = await Post.find({ type }).sort({ createdAt: -1 });
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+
+    const posts = await Post.find({ type })
+      .select(CARD_FIELDS)
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json(posts);
   } catch (error) {
@@ -275,7 +300,9 @@ router.get("/slug/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const post = await Post.findOne({ slug });
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+
+    const post = await Post.findOne({ slug }).lean();
 
     if (!post) {
       return res.status(404).json({
@@ -299,7 +326,11 @@ router.get("/slug/:slug/related", async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const currentPost = await Post.findOne({ slug });
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+
+    const currentPost = await Post.findOne({ slug })
+      .select("title description category type tags")
+      .lean();
 
     if (!currentPost) {
       return res.status(404).json({
@@ -313,7 +344,11 @@ router.get("/slug/:slug/related", async (req, res) => {
 
     const candidates = await Post.find({
       _id: { $ne: currentPost._id }
-    }).sort({ createdAt: -1 });
+    })
+      .select(CARD_FIELDS + " tags")
+      .sort({ createdAt: -1 })
+      .limit(30)
+      .lean();
 
     const scoredPosts = candidates
       .map((candidate) => {
@@ -345,6 +380,7 @@ router.get("/slug/:slug/related", async (req, res) => {
         const currentTitle = `${currentPost.title || ""} ${
           currentPost.description || ""
         }`.toLowerCase();
+
         const candidateTitle = `${candidate.title || ""} ${
           candidate.description || ""
         }`.toLowerCase();
@@ -363,8 +399,10 @@ router.get("/slug/:slug/related", async (req, res) => {
         if (candidate.isFeatured) score += 1;
         if (candidate.isTrending) score += 1;
 
+        const { tags, ...safeCandidate } = candidate;
+
         return {
-          ...candidate.toObject(),
+          ...safeCandidate,
           _score: score
         };
       })
@@ -396,6 +434,8 @@ router.get("/search", async (req, res) => {
       return res.status(200).json([]);
     }
 
+    res.set("Cache-Control", "public, max-age=30, stale-while-revalidate=120");
+
     const posts = await Post.find({
       $or: [
         { title: { $regex: query, $options: "i" } },
@@ -405,8 +445,10 @@ router.get("/search", async (req, res) => {
         { tags: { $elemMatch: { $regex: query, $options: "i" } } }
       ]
     })
+      .select(SEARCH_FIELDS)
       .sort({ createdAt: -1 })
-      .limit(8);
+      .limit(8)
+      .lean();
 
     res.status(200).json(posts);
   } catch (error) {
