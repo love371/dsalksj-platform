@@ -76,6 +76,22 @@ router.get("/stats/dashboard", adminMiddleware, async (req, res) => {
   }
 });
 
+/* ✅ FULL ADMIN POSTS ROUTE FOR EDITING */
+router.get("/admin/all", adminMiddleware, async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 }).lean();
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("GET ADMIN ALL POSTS ERROR:", error);
+
+    res.status(500).json({
+      message: "Server error while fetching admin posts",
+      error: error.message
+    });
+  }
+});
+
 router.post("/add", adminMiddleware, async (req, res) => {
   try {
     const {
@@ -321,7 +337,6 @@ router.get("/slug/:slug", async (req, res) => {
   }
 });
 
-// AUTO RELATED + AUTO EXPLORE
 router.get("/slug/:slug/related", async (req, res) => {
   try {
     const { slug } = req.params;

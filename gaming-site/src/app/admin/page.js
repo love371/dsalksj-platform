@@ -128,7 +128,11 @@ export default function AdminPage() {
               Authorization: `Bearer ${token}`
             }
           }),
-          fetch(apiUrl("/api/posts"))
+          fetch(apiUrl("/api/posts/admin/all"), {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+})
         ]);
 
         const statsData = await statsRes.json();
@@ -166,7 +170,11 @@ export default function AdminPage() {
             Authorization: `Bearer ${token}`
           }
         }),
-        fetch(apiUrl("/api/posts"))
+        fetch(apiUrl("/api/posts/admin/all"), {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+})
       ]);
 
       const statsData = await statsRes.json();
